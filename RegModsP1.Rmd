@@ -1,6 +1,5 @@
 ---
 title: 'Regression Models: Course Project'
-author: "rtaph"
 date: "December 21, 2014"
 output: pdf_document
 ---
@@ -14,10 +13,7 @@ output: pdf_document
 ```
 
 ## Executive Summary
-The goal of this assignment is to find a relationship between a set of variables and miles per gallon (MPG) from the `mtcars` dataset. I particular, I am looking at the following two questions:
-
-* Is an automatic or manual transmission better for MPG?
-* What is the MPG difference between automatic and manual transmissions?
+The goal of this assignment is to find a relationship between a set of variables and miles per gallon (MPG) from the `mtcars` dataset. I particular, I am seeking to answer the following two questions: (1) *Is an automatic or manual transmission better for MPG?* and (2) *What is the MPG difference between automatic and manual transmissions?* The analysis finds that on average, standard transmissions beat automatic transmission in vehicle performance. This difference is 7.24 miles to the gallon in a simple linear regression, and a smaller (but nonetheless significant) 2.94 miles to the gallon when other variables are accounted for.
   
 ## Exploratory Data Analysis
 
@@ -27,11 +23,12 @@ The goal of this assignment is to find a relationship between a set of variables
   mtcars$am = as.logical(mtcars$am)
 ```
 
-I have pr-processed so that `am` is converted to a logical variable instead of a numeric one. A number of exploratory charts are presented in the appendices. From initial inspection, there appears to be strong correlation between mpg and the `cyl`, `disp`, `wt` variables (the regressionn lines seem to fit the data well). 
+I have pre-processed the data so that `am` is converted to a logical variable instead of a numeric one. My exploratory charts are presented in *Appendix A*. From initial inspection of these visualizations, there appears to be strong correlation between `mpg` and the `cyl`, `disp`, `wt` variables (the regression lines seem to fit the data well). 
 
+## Model Fitting
 ### Model 1
 
-I begin the analysis by fitting a simple linear regression model of mpg to one of the hypothesized covariates from the exploratory stage. In this case, I have chosen to model automatic transmission, `am`. The coefficients of the model are presented here:
+I begin the analysis by fitting a simple linear regression model of mpg to one of the hypothesized covariates from the exploratory stage. In this case, I have chosen to model automatic transmission, `am`, as it is the major variable of interest to this study. The coefficients of this model are presented here:
 
 ```{r chunkMod1, cache = TRUE, echo=FALSE, autodep=TRUE}
   # Fit a regression model of mpg to automatic transmission
@@ -39,39 +36,42 @@ I begin the analysis by fitting a simple linear regression model of mpg to one o
   summary(mod1)$coefficients
 ```
 
-The interpretation of this mod
+The `amTRUE` variable above is a dummy variable for standard transmission. The interpretation of the coefficients is that standard transmission improves car performance by an average `r round(summary(mod1)$coefficients[2],2)` miles per gallon compared to automatic transmissions. A review of the model summary (see appendices) reveals that the t-test for $H_{0}: \beta_{am} = 0$ versus $H_{a}: \beta_{am} \neq 0$ is statistically signficant (*p* < .01). The `summary(mod1)` printout (not shown) further reveals that the `am` variable captures an estimated `r round(summary(mod1)$r.squared *100,0)`% of the variance in `mpg`.
 
-Many other simple linear models could be fit. My strategy for model selection is to
+However, there may be confounding variables that explain this covariance. For this we turn to a more complex model that explores all variables. 
 
-A review of the model summary (see appendices) reveals that the t-test for $H_{0}: \beta_{mpg} = 0$ versus $H_{a}: \beta_{mpg} \neq 0$ is statistically signficant (*p* < .01).
+### Model 2
+
+A more complex model may shed light on the true nature of the relationship between `mpg` and `am`. Many other linear models could be fit using combinations of the 10 available predictors. My strategy for model selection will be to use `R`'s built-in backward stepwise selection using the Akaike Information Criterion (AIC). The summary printout of this model follows:
 
 ```{r chunkMod2, cache = TRUE, echo=FALSE, autodep=TRUE}
   # Fit a step-wise regression model
   mod2 <- lm(mpg~., data = mtcars)
   aicFormula <- step(mod2, direction = "backward", trace = FALSE)
-  aicFormula$coefficients
+  summary(aicFormula)
 ```
 
-The coefficient interpretation is that holding all other variables fixed, `mpg` XXX...
+The step function has trimmed the 10 independent variables down to a list of 3 predictors that best explain the variation in `mpg`. These three variables are weight (`wt`), quarter-mile time (`qsec`), and the transmission type (`am`). Here, the coefficient interpretation is that holding all other variables fixed, standard transmissions only increase MPG performance by 2.93. Fortunately, although this covariation is not as strong as originally thought, it is still significant (p < .05) and the magnitude is the same direction. The residual sum of squares is also much lower in the multivariate model (`r round(summary(aicFormula)$r.squared *100,0)`% compared to `r round(summary(mod1)$r.squared *100,0)`%)
 
-The multivariate model improves our regression significantly compared to the initial model (RSS of `r round(anova(aicFormula, mod1)$RSS[1],0)` vs `r round(anova(aicFormula, mod1)$RSS[2],0)`). 
+The diagnostic plots (*Appendix B*) reveal that there is no apparent heteroskedasticity or covariance in the standarized residuals. The Q-Q plot also fits the experimental quantiles along the identity line nicely, suggesting normality. These characteristics give us confidence that our parametic tests are appropriate and that our conclusions are robust.
 
-The diagnostic plots (appendix B) reveal that there is no apparent heteroskedasticity or correlation between the standarized residuals. The Q-Q plot fits the identify line nicely, suggesting our data is normally distributed and that our parametic tests are appropriate.
+### Findings
 
-
-
-#### Model 2
+An analysis of variance reveals that the improvements the second model are highly significant (*p* < .01). The printout of the anova is presented:
 
 ```{r chunkCompMods, cache = TRUE, echo=FALSE, autodep=TRUE}
   print(anova(aicFormula, mod1))
 ```
-There is a significant reduction in the residual sum of squares by using the multivariate model. This difference is significant (*p* < .01).
 
-coefficient Interpretation
-we estimate an expected XX 
-## Findings
+Accordingly, it is apparent that there are substantial variables that confound the relationship between MPG and the transmission type. Once these aspects are accounted for, 
+we conclude that:
 
-Uncertainty in the models can be quantified with the confidence intervals.
+ * a manual transmission is better for MPG; and
+ * Having a standard transmission improves car performance by an average 2.94 mpg compared to an automatic transmission.
+
+
+\newpage
+
 
 # Appendices
 ### Appendix A: Exploratory Charts
@@ -86,9 +86,9 @@ Uncertainty in the models can be quantified with the confidence intervals.
 ```
 
 
-### Appendix B: Model Diagnostic Plots
+### Appendix B: Diagnostic Plots (Multivariate Model)
 ```{r chunkApendixB1, cache = TRUE, echo=FALSE, autodep=TRUE}
-  #
+  # print the standard lm diagnostic plots
   par(mfrow = c(2,2))
-  plot(mod2)
+  plot(aicFormula)
 ```
