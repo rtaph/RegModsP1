@@ -13,7 +13,7 @@ output: pdf_document
 ```
 
 ## Executive Summary
-The goal of this assignment is to find a relationship between a set of variables and miles per gallon (MPG) from the `mtcars` dataset. I particular, I am seeking to answer the following two questions: (1) *Is an automatic or manual transmission better for MPG?* and (2) *What is the MPG difference between automatic and manual transmissions?* The analysis finds that on average, standard transmissions beat automatic transmission in vehicle performance. This difference is 7.24 miles to the gallon in a simple linear regression, and a smaller (but nonetheless significant) 2.94 miles to the gallon when other variables are accounted for.
+The goal of this assignment is to find a relationship between a set of variables and miles per gallon (MPG) from the `mtcars` dataset. I particular, I am seeking to answer the following two questions: (1) *Is an automatic or manual transmission better for MPG?* and (2) *What is the MPG difference between automatic and manual transmissions?* The analysis finds that on average, standard transmissions beat automatic transmission in vehicle performance. This difference is 7.24 miles to the gallon in a simple linear regression, and a smaller (but nonetheless significant) 2.94 miles to the gallon when confounding variables are accounted for.
   
 ## Exploratory Data Analysis
 
@@ -23,7 +23,7 @@ The goal of this assignment is to find a relationship between a set of variables
   mtcars$am = as.logical(mtcars$am)
 ```
 
-I have pre-processed the data so that `am` is converted to a logical variable instead of a numeric one. My exploratory charts are presented in *Appendix A*. From initial inspection of these visualizations, there appears to be strong correlation between `mpg` and the `cyl`, `disp`, `wt` variables (the regression lines seem to fit the data well). 
+I have pre-processed the data so that `am` is a logical variable. An exploratory chart of all variables is in *Appendix A* (Chart #1). From initial inspection of this visualization, there appears to be strong correlation between `mpg` and the `cyl`, `disp`, `wt` variables (the lines seem to fit the data well). A more detailed visualization (Chart #2) of these variables faceted by `am` suggests these relationships exist regardless of transmission type (the green and blue lines are similar).
 
 ## Model Fitting
 ### Model 1
@@ -51,9 +51,9 @@ A more complex model may shed light on the true nature of the relationship betwe
   summary(aicFormula)
 ```
 
-The step function has trimmed the 10 independent variables down to a list of 3 predictors that best explain the variation in `mpg`. These three variables are weight (`wt`), quarter-mile time (`qsec`), and the transmission type (`am`). Here, the coefficient interpretation is that holding all other variables fixed, standard transmissions only increase MPG performance by 2.93. Fortunately, although this covariation is not as strong as originally thought, it is still significant (p < .05) and the magnitude is the same direction. The residual sum of squares is also much lower in the multivariate model (`r round(summary(aicFormula)$r.squared *100,0)`% compared to `r round(summary(mod1)$r.squared *100,0)`%)
+The step function has trimmed the 10 independent variables down to a list of 3 predictors that best explain the variation in `mpg`. These are weight (`wt`), quarter-mile time (`qsec`), and transmission type (`am`). The interpretation of the coefficients is that holding all other variables fixed, standard transmissions increase MPG performance by 2.93 units. Fortunately, although this covariation is not as strong as originally thought, it is still significant (p < .05) and the magnitude is the same direction. The residual sum of squares is also much lower in the multivariate model (`r round(summary(aicFormula)$r.squared *100,0)`% compared to `r round(summary(mod1)$r.squared *100,0)`%). The uncertainty is also lower in this model (Standard Error = 1.41 vs 1.76).
 
-The diagnostic plots (*Appendix B*) reveal that there is no apparent heteroskedasticity or covariance in the standarized residuals. The Q-Q plot also fits the experimental quantiles along the identity line nicely, suggesting normality. These characteristics give us confidence that our parametic tests are appropriate and that our conclusions are robust.
+The diagnostic plots (*Appendix B*) reveal that there is no apparent heteroskedasticity or covariance in the standarized residuals. The Q-Q plot nicely fits the experimental quantiles along the identity line, suggesting normality. Accordingly, I am confident that parametic tests are appropriate and conclusions are robust.
 
 ### Findings
 
@@ -63,7 +63,7 @@ An analysis of variance reveals that the improvements the second model are highl
   print(anova(aicFormula, mod1))
 ```
 
-Accordingly, it is apparent that there are substantial variables that confound the relationship between MPG and the transmission type. Once these aspects are accounted for, 
+From the information above, we see that there are substantial variables that confound the relationship between MPG and the transmission type. Once these aspects are accounted for, 
 we conclude that:
 
  * a manual transmission is better for MPG; and
@@ -77,12 +77,14 @@ we conclude that:
 ### Appendix A: Exploratory Charts
 
 ```{r chunkApendixA1, cache = TRUE, echo=FALSE, autodep=TRUE}
-  pairs(mtcars, panel = panel.smooth, lwd = 2, pch=".", cex = 3)
+  pairs(mtcars, panel = panel.smooth, lwd = 2, pch=".", cex = 3, 
+        main = "Exploratory Chart #1")
 ```
 
 ```{r chunkApendixA2, cache = TRUE, echo=FALSE, autodep=TRUE}
   library(car)
-  scatterplotMatrix(~mpg+disp+drat+wt|cyl, data=mtcars,main="Exploratory Chart")
+  scatterplotMatrix(~ mpg + wt + disp | am, data = mtcars, col = 3:4,
+                    main = "Exploratory Chart #2")
 ```
 
 
