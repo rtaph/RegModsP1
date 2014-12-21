@@ -6,53 +6,56 @@ output: pdf_document
 ---
 
 ******************************
-
-### Executive Summary
-The goal of this assignment is to find a relationship between a set of variables and miles per gallon (MPG) from the `mtcars` dataset. I particular, I am looking at the following two questions:
-
-* Is an automatic or manual transmission better for MPG?
-* What is the MPG difference between automatic and manual transmissions?
-
-
-### Data Processing
-I begin the analysis by loading libraries and setting a few global parameters:
-  
-```{r chunkOpts, message = FALSE, echo=FALSE}
+```{r chunkOpts, message = FALSE, echo=FALSE, autodep=TRUE}
   # load needed libraries, set global options, and working directory
   library(knitr)
   opts_chunk$set(echo = TRUE)       
   setwd("~/Documents/Courses/datasciencecoursera/RegModsP1/")
 ```
 
+### Executive Summary
+The goal of this assignment is to find a relationship between a set of variables and miles per gallon (MPG) from the `mtcars` dataset. I particular, I am looking at the following two questions:
+
+* Is an automatic or manual transmission better for MPG?
+* What is the MPG difference between automatic and manual transmissions?
+  
 ### Exploratory Data Analysis
-We begin by loading the data:
 
 ```{r chunkLoadData, cache = TRUE, echo=FALSE}
   # load data
   data(mtcars)
+  mtcars$am = as.logical(mtcars$am)
 ```
+
+A number of exploratory charts are presented in the appendicess. From initial inspection, there appears to be strong correlation between mpg and the `cyl`, `disp`, `wt` variables (the regressionn lines seem to fit the data well). 
 
 ### Model Fitting
 My strategy for model selection is to
 
-```{r chunkMod1, cache = TRUE, echo=FALSE}
+```{r chunkMod1, cache = TRUE, echo=FALSE, autodep=TRUE}
   # Fit a regression model of mpg to automatic transmission
   mod1 = lm(mpg~am, data = mtcars)
-  summary(mod1)
+  summary(mod1)$coefficients
 ```
-A review of the model summary (see appendices) reveals that it is statistically significant (*p* = `r summary(mod1)$p.value`).
+A review of the model summary (see appendices) reveals that it is statistically significant (*p* < .01).
 
-```{r chunkMod2, cache = TRUE, echo=FALSE}
+```{r chunkMod2, cache = TRUE, echo=FALSE, autodep=TRUE}
   # Fit a step-wise regression model
   mod2 <- lm(mpg~., data = mtcars)
   aicFormula <- step(mod2, direction = "backward", trace = FALSE)
   aicFormula$coefficients
 ```
 
+The multivariate model improves our regression significantly compared to the initial model (RSS of `r round(anova(aicFormula, mod1)$RSS[1],0)` vs `r round(anova(aicFormula, mod1)$RSS[2],0)`). This difference is statistically signficant (*p* < .01).
 #### Model 2
 
-### Coefficient Interpretation
+```{r chunkCompMods, cache = TRUE, echo=FALSE, autodep=TRUE}
+  print(anova(aicFormula, mod1))
+```
+There is a significant reduction in the residual sum of squares by using the multivariate model. This difference is significant (*p* < .01).
 
+### Coefficient Interpretation
+we estimate an expected XX 
 ### Findings
 
 Uncertainty in the models can be quantified with the confidence intervals.
@@ -60,14 +63,19 @@ Uncertainty in the models can be quantified with the confidence intervals.
 # Appendices
 ### Appendix A: Exploratory Charts
 
-```{r chunkApendixA1, cache = TRUE, echo=FALSE}
-  pairs(mtcars, pch = 19)
+```{r chunkApendixA1, cache = TRUE, echo=FALSE, autodep=TRUE}
+  pairs(mtcars, panel = panel.smooth, lwd = 2, pch=".", cex = 3)
+```
+
+```{r chunkApendixA2, cache = TRUE, echo=FALSE, autodep=TRUE}
+  library(car)
+  scatterplotMatrix(~mpg+disp+drat+wt|cyl, data=mtcars,main="Exploratory Chart")
 ```
 
 
-### Appendix A: Model Diagnostic Plots
-```{r chunkApendixB1, cache = TRUE, echo=FALSE}
+### Appendix B: Model Diagnostic Plots
+```{r chunkApendixB1, cache = TRUE, echo=FALSE, autodep=TRUE}
   #
   par(mfrow = c(2,2))
-  plot(mod1)
+  plot(mod2)
 ```
