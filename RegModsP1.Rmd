@@ -13,13 +13,13 @@ output: pdf_document
   setwd("~/Documents/Courses/datasciencecoursera/RegModsP1/")
 ```
 
-### Executive Summary
+## Executive Summary
 The goal of this assignment is to find a relationship between a set of variables and miles per gallon (MPG) from the `mtcars` dataset. I particular, I am looking at the following two questions:
 
 * Is an automatic or manual transmission better for MPG?
 * What is the MPG difference between automatic and manual transmissions?
   
-### Exploratory Data Analysis
+## Exploratory Data Analysis
 
 ```{r chunkLoadData, cache = TRUE, echo=FALSE}
   # load data
@@ -27,17 +27,23 @@ The goal of this assignment is to find a relationship between a set of variables
   mtcars$am = as.logical(mtcars$am)
 ```
 
-A number of exploratory charts are presented in the appendicess. From initial inspection, there appears to be strong correlation between mpg and the `cyl`, `disp`, `wt` variables (the regressionn lines seem to fit the data well). 
+I have pr-processed so that `am` is converted to a logical variable instead of a numeric one. A number of exploratory charts are presented in the appendices. From initial inspection, there appears to be strong correlation between mpg and the `cyl`, `disp`, `wt` variables (the regressionn lines seem to fit the data well). 
 
-### Model Fitting
-My strategy for model selection is to
+### Model 1
+
+I begin the analysis by fitting a simple linear regression model of mpg to one of the hypothesized covariates from the exploratory stage. In this case, I have chosen to model automatic transmission, `am`. The coefficients of the model are presented here:
 
 ```{r chunkMod1, cache = TRUE, echo=FALSE, autodep=TRUE}
   # Fit a regression model of mpg to automatic transmission
   mod1 = lm(mpg~am, data = mtcars)
   summary(mod1)$coefficients
 ```
-A review of the model summary (see appendices) reveals that it is statistically significant (*p* < .01).
+
+The interpretation of this mod
+
+Many other simple linear models could be fit. My strategy for model selection is to
+
+A review of the model summary (see appendices) reveals that the t-test for $H_{0}: \beta_{mpg} = 0$ versus $H_{a}: \beta_{mpg} \neq 0$ is statistically signficant (*p* < .01).
 
 ```{r chunkMod2, cache = TRUE, echo=FALSE, autodep=TRUE}
   # Fit a step-wise regression model
@@ -46,7 +52,14 @@ A review of the model summary (see appendices) reveals that it is statistically 
   aicFormula$coefficients
 ```
 
-The multivariate model improves our regression significantly compared to the initial model (RSS of `r round(anova(aicFormula, mod1)$RSS[1],0)` vs `r round(anova(aicFormula, mod1)$RSS[2],0)`). This difference is statistically signficant (*p* < .01).
+The coefficient interpretation is that holding all other variables fixed, `mpg` XXX...
+
+The multivariate model improves our regression significantly compared to the initial model (RSS of `r round(anova(aicFormula, mod1)$RSS[1],0)` vs `r round(anova(aicFormula, mod1)$RSS[2],0)`). 
+
+The diagnostic plots (appendix B) reveal that there is no apparent heteroskedasticity or correlation between the standarized residuals. The Q-Q plot fits the identify line nicely, suggesting our data is normally distributed and that our parametic tests are appropriate.
+
+
+
 #### Model 2
 
 ```{r chunkCompMods, cache = TRUE, echo=FALSE, autodep=TRUE}
@@ -54,9 +67,9 @@ The multivariate model improves our regression significantly compared to the ini
 ```
 There is a significant reduction in the residual sum of squares by using the multivariate model. This difference is significant (*p* < .01).
 
-### Coefficient Interpretation
+coefficient Interpretation
 we estimate an expected XX 
-### Findings
+## Findings
 
 Uncertainty in the models can be quantified with the confidence intervals.
 
