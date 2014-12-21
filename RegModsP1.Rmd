@@ -1,0 +1,66 @@
+---
+title: 'Regression Models: Course Project'
+author: "rtaph"
+date: "December 21, 2014"
+output: pdf_document
+---
+
+******************************
+
+### Executive Summary
+The goal of this assignment is to find a relationship between a set of variables and miles per gallon (MPG) from the `mtcars` dataset. I particular, I am looking at the following two questions:
+
+* Is an automatic or manual transmission better for MPG?
+* What is the MPG difference between automatic and manual transmissions?
+
+
+### Data Processing
+I begin the analysis by loading libraries and setting a few global parameters:
+  
+```{r chunkOpts, message = FALSE, echo=FALSE}
+  # load needed libraries, set global options, and working directory
+  library(knitr)
+  opts_chunk$set(echo = TRUE)       
+  setwd("~/Documents/Courses/datasciencecoursera/RegModsP1/")
+```
+
+### Exploratory Data Analysis
+We begin by loading the data:
+
+```{r chunkLoadData, cache = TRUE, echo=FALSE}
+  # load data
+  data(mtcars)
+```
+
+### Model Fitting
+My strategy for model selection is to
+
+```{r chunkMod1, cache = TRUE, echo=FALSE}
+  # Fit a regression model of mpg to automatic transmission
+  mod1 = lm(mpg~am, data = mtcars)
+  summary(mod1)
+```
+A review of the model summary (see appendices) reveals that it is statistically significant (*p* = `r summary(mod1)$p.value`).
+
+#### Model 2
+
+### Coefficient Interpretation
+
+### Findings
+
+Uncertainty in the models can be quantified with the confidence intervals.
+
+# Appendices
+### Appendix A: Exploratory Charts
+
+```{r chunkApendixA1, cache = TRUE, echo=FALSE}
+  pairs(mtcars, pch = 19)
+```
+
+
+### Appendix A: Model Diagnostic Plots
+```{r chunkApendixB1, cache = TRUE, echo=FALSE}
+  #
+  par(mfrow = c(2,2))
+  plot(mod1)
+```
