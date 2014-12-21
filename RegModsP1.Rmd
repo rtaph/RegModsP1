@@ -42,6 +42,13 @@ My strategy for model selection is to
 ```
 A review of the model summary (see appendices) reveals that it is statistically significant (*p* = `r summary(mod1)$p.value`).
 
+```{r chunkMod2, cache = TRUE, echo=FALSE}
+  # Fit a step-wise regression model
+  mod2 <- lm(mpg~., data = mtcars)
+  aicFormula <- step(mod2, direction = "backward", trace = FALSE)
+  aicFormula$coefficients
+```
+
 #### Model 2
 
 ### Coefficient Interpretation
